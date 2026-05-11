@@ -1,0 +1,56 @@
+# OS / Editor
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Python / FastAPI (Backend)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+backend/env/
+backend/venv/
+backend/.venv/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node.js / Next.js (Frontend)
+node_modules/
+frontend/node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+.pnp.*
+frontend/.next/
+frontend/out/
+frontend/build/
+.next/
+out/
+build/
+
+# Environment Variables / Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/.env
+frontend/.env
+frontend/.env.local
+
+# Vercel / Deployments
+.vercel/
