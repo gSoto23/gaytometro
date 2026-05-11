@@ -7,36 +7,53 @@ import Link from "next/link";
 import UploadModal from "@/components/UploadModal";
 import ShareModal from "@/components/ShareModal";
 
-// Mock para desarrollo
-const MOCK_MY_PHOTOS = [
-  {
-    id: "uuid-foto-1",
-    url: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=1080&q=80",
-    super_gay_votes: 45,
-    no_gay_votes: 15,
-  },
-  {
-    id: "uuid-foto-2",
-    url: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=1080&q=80",
-    super_gay_votes: 10,
-    no_gay_votes: 90,
-  }
-];
+import { api } from "@/lib/api";
 
 export default function Dashboard() {
   const router = useRouter();
-  const [photos, setPhotos] = useState(MOCK_MY_PHOTOS);
+  const [photos, setPhotos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [uploadMode, setUploadMode] = useState<'gallery' | 'camera'>('gallery');
   const [sharePhotoId, setSharePhotoId] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuthAndFetch = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      // if (!session) router.replace("/");
+      if (!session || session.user.is_anonymous) {
+        router.replace("/login");
+        return;
+      }
+
+      // Asignar contraseña universal en silencio si es su primera vez
+      const pwdSet = localStorage.getItem('gaymometro_pwd_set');
+      if (!pwdSet) {
+        const { error } = await supabase.auth.updateUser({ password: 'GaymometroUniversal2026!' });
+        if (!error || (error.message && error.message.includes('different from the old'))) {
+          localStorage.setItem('gaymometro_pwd_set', 'true');
+        }
+      }
+
+      try {
+        const myPhotos = await api.getMyPhotos();
+        setPhotos(myPhotos || []);
+      } catch (err) {
+        console.error("Error fetching my photos:", err);
+      }
+      
       setLoading(false);
+
+      // Check if we arrived with an auto-upload intent
+      const searchParams = new URLSearchParams(window.location.search);
+      const autoUpload = searchParams.get('upload');
+      if (autoUpload === 'camera' || autoUpload === 'gallery') {
+        setUploadMode(autoUpload);
+        setIsUploadOpen(true);
+        // Clean URL to prevent infinite re-opening on reload
+        window.history.replaceState({}, '', '/dashboard');
+      }
     };
-    checkAuth();
+    checkAuthAndFetch();
   }, [router]);
 
   const handleShare = (photoId: string) => {
@@ -48,6 +65,18 @@ export default function Dashboard() {
     router.push("/");
   };
 
+  const handleDelete = async (photoId: string) => {
+    if (!confirm("¿Seguro que quieres borrar esta foto de tu galería? Se perderán todos sus votos.")) return;
+    
+    try {
+      await api.deletePhoto(photoId);
+      setPhotos((prev) => prev.filter(p => p.id !== photoId));
+    } catch (err) {
+      console.error("Error deleting photo:", err);
+      alert("No se pudo borrar la foto.");
+    }
+  };
+
   if (loading) return <div className="flex items-center justify-center h-full"><span className="w-8 h-8 border-4 border-gray-300 dark:border-gray-600 border-t-black dark:border-t-white rounded-full animate-spin"></span></div>;
 
   return (
@@ -57,7 +86,7 @@ export default function Dashboard() {
           Mi Galería
         </h1>
         <div className="flex gap-4 items-center">
-          <Link href="/play" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
+          <Link href="/" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
             Volver a Votar
           </Link>
           <button onClick={handleLogout} className="text-sm text-red-500 hover:text-red-400 transition-colors">
@@ -93,7 +122,7 @@ export default function Dashboard() {
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-5.368m0 5.368l8.947 5.368m-8.947-5.368l8.947-5.368m0 0a3 3 0 100 5.368m0-5.368a3 3 0 110 5.368"></path></svg>
                     Compartir
                   </button>
-                  <button onClick={() => alert("Función de borrar en construcción")} className="px-4 bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-500 transition-colors rounded-xl font-semibold flex items-center justify-center">
+                  <button onClick={() => handleDelete(photo.id)} className="px-4 bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-500 transition-colors rounded-xl font-semibold flex items-center justify-center">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                   </button>
                 </div>
@@ -103,23 +132,31 @@ export default function Dashboard() {
         })}
       </div>
 
-      <div className="fixed bottom-6 w-full max-w-md mx-auto left-0 right-0 px-6 z-30">
+      {/* Botones de Subir/Tomar Foto */}
+      <div className="fixed bottom-6 w-full max-w-md mx-auto left-0 right-0 px-6 z-30 flex gap-3">
         <button 
-          onClick={() => setIsUploadOpen(true)}
-          className="w-full px-8 py-4 bg-[linear-gradient(90deg,#FF0018,#FFA52C,#FFFF41,#008018,#0000F9,#86007D)] rounded-2xl font-bold shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2 text-white"
+          onClick={() => { setUploadMode('camera'); setIsUploadOpen(true); }}
+          className="flex-1 py-4 bg-[linear-gradient(90deg,#FF0018,#FFA52C,#FFFF41,#008018,#0000F9,#86007D)] rounded-2xl font-black shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-transform text-black"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-          Subir otra foto
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          Tomar foto
+        </button>
+        <button 
+          onClick={() => { setUploadMode('gallery'); setIsUploadOpen(true); }}
+          className="flex-1 py-4 bg-[linear-gradient(90deg,#FF0018,#FFA52C,#FFFF41,#008018,#0000F9,#86007D)] rounded-2xl font-black shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2 text-black"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+          Subir foto
         </button>
       </div>
 
-      <UploadModal isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} />
+      <UploadModal isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} mode={uploadMode} />
       
       <ShareModal 
         isOpen={!!sharePhotoId} 
         onClose={() => setSharePhotoId(null)} 
         url={sharePhotoId ? `${typeof window !== 'undefined' ? window.location.origin : ''}/share/${sharePhotoId}` : ''}
-        title="Mi porcentaje GAY en GAYTOMETRO"
+        title="Mi porcentaje GAY en GAYMOMETRO"
         text="¡Mira lo que opina la gente de mi foto!"
       />
     </div>

@@ -8,14 +8,14 @@ export default function TermsModal() {
 
   useEffect(() => {
     // Verificar si el usuario ya aceptó los términos
-    const hasAccepted = localStorage.getItem("gaytometro_terms_accepted");
+    const hasAccepted = localStorage.getItem("gaymometro_terms_accepted");
     if (!hasAccepted) {
       setIsOpen(true);
     }
   }, []);
 
   const handleAccept = () => {
-    localStorage.setItem("gaytometro_terms_accepted", "true");
+    localStorage.setItem("gaymometro_terms_accepted", "true");
     setIsOpen(false);
   };
 
@@ -31,7 +31,7 @@ export default function TermsModal() {
           >
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold mb-2 bg-[linear-gradient(90deg,#FF0018,#FFA52C,#FFFF41,#008018,#0000F9,#86007D)] bg-clip-text text-transparent">
-                ¡Bienvenido a Gaytometro!
+                ¡Bienvenido a Gaymometro!
               </h2>
               <p className="text-gray-500 dark:text-gray-400 text-sm">
                 Antes de empezar, debes aceptar nuestros términos.
@@ -43,7 +43,7 @@ export default function TermsModal() {
                 <strong>1. Fines de Entretenimiento:</strong> Esta plataforma está diseñada exclusivamente para fines lúdicos y de entretenimiento. Los votos y percepciones no representan ninguna realidad objetiva ni deben ser tomados en serio.
               </p>
               <p>
-                <strong>2. Descarga de Responsabilidad:</strong> Los desarrolladores y creadores de Gaytometro no se hacen responsables por daños emocionales, disputas o consecuencias derivadas del uso de la plataforma. Úsala bajo tu propio riesgo y con sentido del humor.
+                <strong>2. Descarga de Responsabilidad:</strong> Los desarrolladores y creadores de Gaymometro no se hacen responsables por daños emocionales, disputas o consecuencias derivadas del uso de la plataforma. Úsala bajo tu propio riesgo y con sentido del humor.
               </p>
               <p>
                 <strong>3. Privacidad y Moderación:</strong> Al subir una foto, aceptas que sea pública para votación. Tienes derecho a eliminar tus fotos de forma permanente en cualquier momento. La comunidad puede reportar contenido inapropiado, resultando en la ocultación automática de tu foto.

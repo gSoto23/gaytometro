@@ -13,17 +13,31 @@ export default function AuthForm() {
     setLoading(true);
     setMessage(null);
 
+    // Intentamos login instantáneo (si el usuario ya validó su correo antes)
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password: 'GaymometroUniversal2026!'
+    });
+
+    if (!signInError && signInData.session) {
+      // Login exitoso e instantáneo
+      window.location.href = '/dashboard';
+      return;
+    }
+
+    // Si falló, significa que es su primera vez o no tiene la contraseña seteada
+    // Enviamos el Magic Link normal
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/play`,
+        emailRedirectTo: `${window.location.origin}/dashboard`,
       },
     });
 
     if (error) {
       setMessage({ type: "error", text: error.message });
     } else {
-      setMessage({ type: "success", text: "¡Revisa tu correo para el enlace mágico de inicio de sesión!" });
+      setMessage({ type: "success", text: "¡Revisa tu correo para validar tu identidad por primera vez!" });
     }
     setLoading(false);
   };
@@ -32,7 +46,7 @@ export default function AuthForm() {
     <div className="w-full max-w-sm mx-auto mt-20 p-6 bg-white dark:bg-[#111] rounded-2xl border border-gray-200 dark:border-white/10 shadow-2xl">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold bg-[linear-gradient(90deg,#FF0018,#FFA52C,#FFFF41,#008018,#0000F9,#86007D)] bg-clip-text text-transparent">
-          GAYTOMETRO
+          GAYMOMETRO
         </h1>
         <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">Ingresa con tu correo, sin contraseñas.</p>
       </div>
