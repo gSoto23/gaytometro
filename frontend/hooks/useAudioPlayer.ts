@@ -18,6 +18,28 @@ export function useAudioPlayer() {
         const ctx = new AudioContextClass();
         audioContextRef.current = ctx;
 
+        // Unlock audio context natively via global event listeners
+        const unlock = () => {
+          if (ctx.state === "suspended") {
+            ctx.resume();
+          }
+          try {
+            const buffer = ctx.createBuffer(1, 1, 22050);
+            const source = ctx.createBufferSource();
+            source.buffer = buffer;
+            source.connect(ctx.destination);
+            source.start(0);
+          } catch(e) {}
+
+          document.removeEventListener("touchstart", unlock);
+          document.removeEventListener("touchend", unlock);
+          document.removeEventListener("click", unlock);
+        };
+
+        document.addEventListener("touchstart", unlock, { passive: true });
+        document.addEventListener("touchend", unlock, { passive: true });
+        document.addEventListener("click", unlock, { passive: true });
+
         // Fetch and decode sounds
         const loadSound = async (url: string, key: string) => {
           const response = await fetch(url);
@@ -69,20 +91,10 @@ export function useAudioPlayer() {
   };
 
   const unlockAudio = () => {
+    // This is now handled globally via native listeners, but we keep this as a fallback
     if (audioContextRef.current?.state === "suspended") {
       audioContextRef.current.resume();
     }
-    // Play a silent buffer to fully unlock iOS audio
-    try {
-       if (audioContextRef.current) {
-         const ctx = audioContextRef.current;
-         const buffer = ctx.createBuffer(1, 1, 22050);
-         const source = ctx.createBufferSource();
-         source.buffer = buffer;
-         source.connect(ctx.destination);
-         source.start(0);
-       }
-    } catch(e) {}
   };
 
   return { playSound, isReady, unlockAudio };
