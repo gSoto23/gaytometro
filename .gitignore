@@ -54,3 +54,13 @@ frontend/.env.local
 
 # Vercel / Deployments
 .vercel/
+
+# Turbopack and Next.js Cache
+.turbo/
+frontend/.turbo/
+*.tsbuildinfo
+
+# Debug Scripts
+test_*.py
+test_*.js
+*.log

@@ -3,8 +3,11 @@ import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 // Fetch photo and votes directly from Supabase for SSR
@@ -16,6 +19,10 @@ async function getPhotoData(id: string) {
     .single();
 
   if (photoError || !photo) {
+    console.error("DEBUG NEXT.JS SUPABASE - ID:", id);
+    console.error("DEBUG URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
+    console.error("DEBUG KEY (first 10):", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.substring(0, 10));
+    console.error("DEBUG ERROR:", photoError);
     return null;
   }
 
@@ -44,7 +51,8 @@ export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const data = await getPhotoData(params.id);
+  const resolvedParams = await params;
+  const data = await getPhotoData(resolvedParams.id);
 
   if (!data) {
     return {
@@ -72,7 +80,8 @@ export async function generateMetadata(
 }
 
 export default async function SharePage({ params }: Props) {
-  const data = await getPhotoData(params.id);
+  const resolvedParams = await params;
+  const data = await getPhotoData(resolvedParams.id);
 
   if (!data) {
     notFound();

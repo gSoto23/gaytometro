@@ -3,6 +3,9 @@ import { supabase } from "@/lib/supabaseClient";
 
 // export const runtime = 'edge' // Dejaremos que use node por defecto para evitar problemas con Supabase client en edge
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const alt = 'GAYMOMETRO Resultado'
 export const size = {
   width: 1200,
@@ -10,12 +13,14 @@ export const size = {
 }
 export const contentType = 'image/png'
 
-export default async function Image({ params }: { params: { id: string } }) {
+export default async function Image({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  
   // 1. Obtener la foto
   const { data: photo } = await supabase
     .from("photos")
     .select("id, url")
-    .eq("id", params.id)
+    .eq("id", resolvedParams.id)
     .single();
 
   if (!photo) {
@@ -33,13 +38,13 @@ export default async function Image({ params }: { params: { id: string } }) {
   const { count: superGayCount } = await supabase
     .from("votes")
     .select("*", { count: "exact", head: true })
-    .eq("photo_id", params.id)
+    .eq("photo_id", resolvedParams.id)
     .eq("is_super_gay", true);
 
   const { count: noGayCount } = await supabase
     .from("votes")
     .select("*", { count: "exact", head: true })
-    .eq("photo_id", params.id)
+    .eq("photo_id", resolvedParams.id)
     .eq("is_super_gay", false);
 
   const total = (superGayCount || 0) + (noGayCount || 0);
