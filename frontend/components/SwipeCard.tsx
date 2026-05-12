@@ -15,6 +15,14 @@ export default function SwipeCard({ photo, onVote, isMuted = false }: SwipeCardP
   const [opacity, setOpacity] = useState(1);
   const [label, setLabel] = useState<"SUPER GAY" | "NO GAY" | null>(null);
   const audioPlayedRef = useRef<"SUPER GAY" | "NO GAY" | null>(null);
+  const superGayAudioRef = useRef<HTMLAudioElement | null>(null);
+  const noGayAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // Preload audio objects on mount to bypass mobile Safari autoplay restrictions
+    superGayAudioRef.current = new Audio("/sounds/super_gay.mp3");
+    noGayAudioRef.current = new Audio("/sounds/no_gay.mp3");
+  }, []);
 
   useEffect(() => {
     controls.start({ scale: 1, opacity: 1, transition: { duration: 0.3 } });
@@ -23,8 +31,11 @@ export default function SwipeCard({ photo, onVote, isMuted = false }: SwipeCardP
   const playSound = (isSuperGay: boolean) => {
     if (isMuted) return;
     try {
-      const audio = new Audio(isSuperGay ? "/sounds/super_gay.mp3" : "/sounds/no_gay.mp3");
-      audio.play().catch(e => console.log("Audio play error", e));
+      const audio = isSuperGay ? superGayAudioRef.current : noGayAudioRef.current;
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(e => console.log("Audio play error", e));
+      }
     } catch (e) {
       console.log("Audio not supported");
     }
