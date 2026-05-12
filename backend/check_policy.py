@@ -1,14 +1,11 @@
 import os
-from supabase import create_client, Client
-from dotenv import load_dotenv
+from supabase import create_client
 
-load_dotenv()
-SUPABASE_URL = os.getenv("NEXT_PUBLIC_SUPABASE_URL")
-SUPABASE_KEY = os.getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY")
+supabase = create_client(
+    "https://uirmcrtzfgmguutcrmpv.supabase.co",
+    "sb_publishable_Pcptwu5kv5EON0P112oh9Q_o3sAqoSr"
+)
 
-client = create_client(SUPABASE_URL, SUPABASE_KEY)
-try:
-    resp = client.table('reports').select('*').limit(1).execute()
-    print("Select ok")
-except Exception as e:
-    print(e)
+# Test if anon key can read this specific row
+response = supabase.table("photos").select("id, is_active").eq("id", "4a435676-5ed6-4ea1-8d7d-996ea8f6ca04").execute()
+print("Anon can read photo?", len(response.data) > 0, response.data)

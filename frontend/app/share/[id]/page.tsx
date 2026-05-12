@@ -41,9 +41,10 @@ async function getPhotoData(id: string) {
 }
 
 export async function generateMetadata(
-  { params }: Props,
+  props: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
+  const params = await props.params;
   const data = await getPhotoData(params.id);
 
   if (!data) {
@@ -73,7 +74,8 @@ export async function generateMetadata(
   };
 }
 
-export default async function SharePage({ params }: Props) {
+export default async function SharePage(props: Props) {
+  const params = await props.params;
   const data = await getPhotoData(params.id);
 
   if (!data) {
