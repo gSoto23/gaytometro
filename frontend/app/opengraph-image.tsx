@@ -18,30 +18,16 @@ export default function Image() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#050505',
+          backgroundColor: '#0a0a0a',
           fontFamily: 'sans-serif',
-          position: 'relative',
         }}
       >
-        {/* Background gradient blur effect */}
-        <div
-          style={{
-            position: 'absolute',
-            width: '800px',
-            height: '800px',
-            background: 'radial-gradient(circle, rgba(255,0,127,0.15) 0%, rgba(0,0,0,0) 70%)',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-          }}
-        />
-
         {/* Unicorn Emoji */}
         <div
           style={{
+            display: 'flex',
             fontSize: 200,
             marginBottom: '40px',
-            filter: 'drop-shadow(0px 10px 20px rgba(0,0,0,0.5))',
           }}
         >
           🦄
@@ -54,9 +40,7 @@ export default function Image() {
             fontSize: 80,
             fontWeight: '900',
             letterSpacing: '0.1em',
-            color: 'transparent',
-            backgroundImage: 'linear-gradient(90deg, #FF0018, #FFA52C, #FFFF41, #008018, #0000F9, #86007D)',
-            backgroundClip: 'text',
+            color: '#FF007F',
           }}
         >
           GAYMOMETRO
@@ -65,11 +49,11 @@ export default function Image() {
         {/* Subtitle */}
         <div
           style={{
+            display: 'flex',
             marginTop: '30px',
             fontSize: 40,
             fontWeight: 'bold',
             color: '#ffffff',
-            opacity: 0.9,
           }}
         >
           Descubre tu porcentaje
