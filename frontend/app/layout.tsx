@@ -27,21 +27,12 @@ export const metadata: Metadata = {
     description: "Sube tu foto y deja que la comunidad decida. ¡Totalmente anónimo!",
     url: "https://gaymometro.com",
     siteName: "GAYMOMETRO",
-    images: [
-      {
-        url: "/logobk.jpeg",
-        width: 1200,
-        height: 630,
-        alt: "GAYMOMETRO Logo",
-      },
-    ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "GAYMOMETRO | Descubre tu porcentaje",
     description: "Sube tu foto y deja que la comunidad decida. ¡Totalmente anónimo!",
-    images: ["/logobk.jpeg"],
   },
   icons: {
     icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦄</text></svg>",
