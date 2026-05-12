@@ -19,10 +19,32 @@ export default function SwipeCard({ photo, onVote, isMuted = false }: SwipeCardP
   const noGayAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    // Preload audio objects on mount to bypass mobile Safari autoplay restrictions
-    superGayAudioRef.current = new Audio("/sounds/super_gay.mp3");
-    noGayAudioRef.current = new Audio("/sounds/no_gay.mp3");
+    // Preload audio objects on mount
+    const a1 = new Audio("/sounds/super_gay.mp3");
+    const a2 = new Audio("/sounds/no_gay.mp3");
+    a1.preload = "auto";
+    a2.preload = "auto";
+    superGayAudioRef.current = a1;
+    noGayAudioRef.current = a2;
   }, []);
+
+  const unlockAudio = () => {
+    if (isMuted) return;
+    // Trick to unlock audio engine on iOS/Android during first native touch event
+    [superGayAudioRef.current, noGayAudioRef.current].forEach(audio => {
+      if (audio && audio.paused) {
+        audio.volume = 0; // Mute it so user doesn't hear the unlock
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            audio.pause();
+            audio.currentTime = 0;
+            audio.volume = 1; // Restore volume
+          }).catch(() => {});
+        }
+      }
+    });
+  };
 
   useEffect(() => {
     controls.start({ scale: 1, opacity: 1, transition: { duration: 0.3 } });
@@ -83,6 +105,8 @@ export default function SwipeCard({ photo, onVote, isMuted = false }: SwipeCardP
       dragConstraints={{ left: 0, right: 0 }}
       onDrag={handleDrag}
       onDragEnd={handleDragEnd}
+      onTouchStart={unlockAudio}
+      onMouseDown={unlockAudio}
       animate={controls}
       initial={{ scale: 0.95, opacity: 0 }}
       exit={{ x: exitX, opacity: opacity, transition: { duration: 0.2 } }}
