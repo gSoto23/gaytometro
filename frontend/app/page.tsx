@@ -7,6 +7,7 @@ import ShareModal from "@/components/ShareModal";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 
 import { api } from "@/lib/api";
 
@@ -20,6 +21,8 @@ export default function Play() {
   const [isMuted, setIsMuted] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
   
+  const { playSound, unlockAudio } = useAudioPlayer();
+
   // Track globally seen photos in this session to prevent race conditions during fetch
   const seenPhotoIds = useRef<Set<string>>(new Set());
 
@@ -204,7 +207,7 @@ export default function Play() {
           {photos.length > 0 ? (
             photos.map((photo, index) => (
               index === 0 && (
-                <SwipeCard key={photo.id} photo={photo} onVote={handleVote} isMuted={isMuted} />
+                <SwipeCard key={photo.id} photo={photo} onVote={handleVote} isMuted={isMuted} playAudio={playSound} unlockAudio={unlockAudio} />
               )
             ))
           ) : (

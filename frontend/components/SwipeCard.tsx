@@ -7,61 +7,30 @@ interface SwipeCardProps {
   photo: { id: string; url: string };
   onVote: (photoId: string, isSuperGay: boolean) => void;
   isMuted?: boolean;
+  playAudio: (soundKey: "super_gay" | "no_gay", isMuted: boolean) => void;
+  unlockAudio: () => void;
 }
 
-export default function SwipeCard({ photo, onVote, isMuted = false }: SwipeCardProps) {
+export default function SwipeCard({ photo, onVote, isMuted = false, playAudio, unlockAudio }: SwipeCardProps) {
   const controls = useAnimation();
   const [exitX, setExitX] = useState<number | string>(0);
   const [opacity, setOpacity] = useState(1);
   const [label, setLabel] = useState<"SUPER GAY" | "NO GAY" | null>(null);
-  const audioPlayedRef = useRef<"SUPER GAY" | "NO GAY" | null>(null);
-  const superGayAudioRef = useRef<HTMLAudioElement | null>(null);
-  const noGayAudioRef = useRef<HTMLAudioElement | null>(null);
-
-  const unlockAudio = () => {
-    if (isMuted) return;
-    // Trick to unlock audio engine on iOS/Android during first native touch event
-    [superGayAudioRef.current, noGayAudioRef.current].forEach(audio => {
-      if (audio && audio.paused) {
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-          playPromise.then(() => {
-            audio.pause();
-            audio.currentTime = 0;
-          }).catch(() => {});
-        }
-      }
-    });
-  };
-
   useEffect(() => {
     controls.start({ scale: 1, opacity: 1, transition: { duration: 0.3 } });
   }, [controls]);
-
-  const playSound = (isSuperGay: boolean) => {
-    if (isMuted) return;
-    try {
-      const audio = isSuperGay ? superGayAudioRef.current : noGayAudioRef.current;
-      if (audio) {
-        audio.currentTime = 0;
-        audio.play().catch(e => console.log("Audio play error", e));
-      }
-    } catch (e) {
-      console.log("Audio not supported");
-    }
-  };
 
   const handleDrag = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     if (info.offset.x > 50) {
       setLabel("SUPER GAY");
       if (audioPlayedRef.current !== "SUPER GAY") {
-        playSound(true);
+        playAudio("super_gay", isMuted);
         audioPlayedRef.current = "SUPER GAY";
       }
     } else if (info.offset.x < -50) {
       setLabel("NO GAY");
       if (audioPlayedRef.current !== "NO GAY") {
-        playSound(false);
+        playAudio("no_gay", isMuted);
         audioPlayedRef.current = "NO GAY";
       }
     } else {
@@ -155,10 +124,6 @@ export default function SwipeCard({ photo, onVote, isMuted = false }: SwipeCardP
       <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent">
         <p className="text-white/80 text-sm text-center font-medium">Desliza para votar</p>
       </div>
-
-      {/* DOM Audio elements for better iOS support */}
-      <audio ref={superGayAudioRef} src="/sounds/super_gay.mp3" preload="auto" />
-      <audio ref={noGayAudioRef} src="/sounds/no_gay.mp3" preload="auto" />
     </motion.div>
   );
 }
