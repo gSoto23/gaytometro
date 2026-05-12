@@ -60,60 +60,78 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'flex-end',
-          backgroundColor: '#111',
-          overflow: 'hidden',
-          position: 'relative'
+          justifyContent: 'center',
+          backgroundColor: '#050505',
+          fontFamily: 'sans-serif',
+          position: 'relative',
         }}
       >
-        {/* Imagen de fondo (la foto del usuario) */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={photo.url}
-          alt="Foto"
+        {/* Background gradient blur effect */}
+        <div
           style={{
             position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
+            width: '800px',
+            height: '800px',
+            background: 'radial-gradient(circle, rgba(255,0,127,0.15) 0%, rgba(0,0,0,0) 70%)',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
           }}
         />
 
-        {/* Gradiente oscuro abajo para que el texto sea legible */}
+        {/* Unicorn Emoji */}
+        <div
+          style={{
+            fontSize: 160,
+            marginBottom: '20px',
+            filter: 'drop-shadow(0px 10px 20px rgba(0,0,0,0.5))',
+          }}
+        >
+          🦄
+        </div>
+
+        {/* Title */}
         <div
           style={{
             display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.9) 100%)',
-            width: '100%',
-            height: '50%',
-            padding: '40px',
-            paddingBottom: '60px',
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
+            fontSize: 50,
+            fontWeight: '900',
+            letterSpacing: '0.1em',
+            color: 'transparent',
+            backgroundImage: 'linear-gradient(90deg, #FF0018, #FFA52C, #FFFF41, #008018, #0000F9, #86007D)',
+            backgroundClip: 'text',
           }}
         >
-          <div style={{ fontSize: 36, color: '#fff', fontWeight: 'bold', marginBottom: '10px' }}>
-            El veredicto de la comunidad es:
-          </div>
-          <div
-            style={{
-              fontSize: 110,
-              fontWeight: '900',
-              color: '#FF007F', // Un rosa/rojo vibrante
-              textShadow: '4px 4px 10px rgba(0,0,0,0.8)',
-            }}
-          >
-            {vibeScore}% GAY
-          </div>
-          <div style={{ fontSize: 30, color: '#aaa', marginTop: '20px' }}>
-            Basado en {total} votos en GAYMOMETRO
-          </div>
+          GAYMOMETRO
+        </div>
+
+        {/* Veredicto */}
+        <div
+          style={{
+            marginTop: '30px',
+            fontSize: 40,
+            color: '#fff',
+            fontWeight: 'bold',
+          }}
+        >
+          El veredicto de la comunidad es:
+        </div>
+
+        {/* Score */}
+        <div
+          style={{
+            fontSize: 120,
+            fontWeight: '900',
+            color: '#FF007F',
+            textShadow: '4px 4px 10px rgba(0,0,0,0.8)',
+            marginTop: '10px',
+          }}
+        >
+          {vibeScore}% GAY
+        </div>
+
+        <div style={{ fontSize: 30, color: '#aaa', marginTop: '10px' }}>
+          Basado en {total} votos
         </div>
       </div>
     ),
