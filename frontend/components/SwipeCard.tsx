@@ -18,28 +18,16 @@ export default function SwipeCard({ photo, onVote, isMuted = false }: SwipeCardP
   const superGayAudioRef = useRef<HTMLAudioElement | null>(null);
   const noGayAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  useEffect(() => {
-    // Preload audio objects on mount
-    const a1 = new Audio("/sounds/super_gay.mp3");
-    const a2 = new Audio("/sounds/no_gay.mp3");
-    a1.preload = "auto";
-    a2.preload = "auto";
-    superGayAudioRef.current = a1;
-    noGayAudioRef.current = a2;
-  }, []);
-
   const unlockAudio = () => {
     if (isMuted) return;
     // Trick to unlock audio engine on iOS/Android during first native touch event
     [superGayAudioRef.current, noGayAudioRef.current].forEach(audio => {
       if (audio && audio.paused) {
-        audio.volume = 0; // Mute it so user doesn't hear the unlock
         const playPromise = audio.play();
         if (playPromise !== undefined) {
           playPromise.then(() => {
             audio.pause();
             audio.currentTime = 0;
-            audio.volume = 1; // Restore volume
           }).catch(() => {});
         }
       }
@@ -167,6 +155,10 @@ export default function SwipeCard({ photo, onVote, isMuted = false }: SwipeCardP
       <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent">
         <p className="text-white/80 text-sm text-center font-medium">Desliza para votar</p>
       </div>
+
+      {/* DOM Audio elements for better iOS support */}
+      <audio ref={superGayAudioRef} src="/sounds/super_gay.mp3" preload="auto" />
+      <audio ref={noGayAudioRef} src="/sounds/no_gay.mp3" preload="auto" />
     </motion.div>
   );
 }

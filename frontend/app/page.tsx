@@ -151,7 +151,7 @@ export default function Play() {
   const vibeScore = totalVotes > 0 ? Math.round((currentPhoto!.super_gay_votes / totalVotes) * 100) : 0;
 
   return (
-    <div className="flex flex-col items-center justify-between min-h-screen py-6 relative">
+    <div className="fixed inset-0 flex flex-col items-center justify-between h-[100dvh] w-full overflow-hidden py-4 bg-white dark:bg-[#0a0a0a]">
       {/* Header / Título */}
       <div className="w-full px-6 flex justify-between items-center z-20">
         <Link href="/dashboard" className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors active:scale-95">
