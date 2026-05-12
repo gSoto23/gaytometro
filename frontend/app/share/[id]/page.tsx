@@ -41,10 +41,9 @@ async function getPhotoData(id: string) {
 }
 
 export async function generateMetadata(
-  props: Props,
+  { params }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const params = await props.params;
   const data = await getPhotoData(params.id);
 
   if (!data) {
@@ -62,20 +61,17 @@ export async function generateMetadata(
     openGraph: {
       title,
       description,
-      images: [data.photo.url], // Dynamic Open Graph image using the user's photo
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [data.photo.url],
     },
   };
 }
 
-export default async function SharePage(props: Props) {
-  const params = await props.params;
+export default async function SharePage({ params }: Props) {
   const data = await getPhotoData(params.id);
 
   if (!data) {
