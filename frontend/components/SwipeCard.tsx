@@ -16,6 +16,7 @@ export default function SwipeCard({ photo, onVote, isMuted = false, playAudio, u
   const [exitX, setExitX] = useState<number | string>(0);
   const [opacity, setOpacity] = useState(1);
   const [label, setLabel] = useState<"SUPER GAY" | "NO GAY" | null>(null);
+  const audioPlayedRef = useRef<"SUPER GAY" | "NO GAY" | null>(null);
   useEffect(() => {
     controls.start({ scale: 1, opacity: 1, transition: { duration: 0.3 } });
   }, [controls]);
