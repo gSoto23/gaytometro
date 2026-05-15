@@ -96,7 +96,7 @@ export default function Play() {
     setVotesGiven((prev) => {
       const next = prev + 1;
       localStorage.setItem("gaymometro_votes_given", next.toString());
-      if (next >= 10 && !unlocked) {
+      if (next >= 3 && !unlocked) {
         localStorage.setItem("gaymometro_unlocked", "true");
         setUnlocked(true);
       }
@@ -111,7 +111,7 @@ export default function Play() {
   };
 
   const handleUploadClick = (mode: 'gallery' | 'camera') => {
-    if (!unlocked && votesGiven < 10) {
+    if (!unlocked && votesGiven < 3) {
       setShowGateModal(true);
     } else {
       router.push(`/dashboard?upload=${mode}`);
@@ -276,7 +276,7 @@ export default function Play() {
               <div className="text-4xl mb-4">🔒</div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Aún no puedes subir fotos</h2>
               <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
-                Para mantener la comunidad activa, necesitas evaluar al menos <strong>10 fotos</strong> antes de poder subir la tuya. Llevas <strong>{votesGiven}</strong>.
+                Para mantener la comunidad activa, necesitas evaluar al menos <strong>3 fotos</strong> antes de poder subir la tuya. Llevas <strong>{votesGiven}</strong>.
               </p>
               <button
                 onClick={() => setShowGateModal(false)}
